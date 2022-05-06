@@ -21,9 +21,9 @@ async function run() {
   try {
     await client.connect();
     const productCollection = client.db("bigbazar").collection("product");
+    const orderCollection = client.db("bigbazar").collection("order");
     app.post("/post", async (req, res) => {
       const product = req.body;
-      console.log(product);
       const result = await productCollection.insertOne(product);
       res.send({ success: "success fully post" });
     });
@@ -66,7 +66,23 @@ async function run() {
       const result = await productCollection.updateOne(filter, updateDoc, options);
       res.send(result);
     })
+// ----------- add order-----------
+    app.post("/order", async (req, res) => {
+         const order= req.body;
+         const result = await orderCollection.insertOne(order);
+         res.send({ success: "success fully order" });
 
+    })
+
+// ------------ order list ---------
+    app.get("/orderlist", async (req, res) => {
+      const email = req.query.email;
+      const query = {email: email}
+      const cursor = orderCollection.find(query);
+      const result = await cursor.toArray();
+      console.log(result);
+      res.send(result);
+    })
 
   } finally {
     // await client.close();
