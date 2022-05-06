@@ -80,10 +80,19 @@ async function run() {
       const query = {email: email}
       const cursor = orderCollection.find(query);
       const result = await cursor.toArray();
-      console.log(result);
       res.send(result);
     })
-
+// ------delete from order list-------
+    app.delete("/orderdelete", async (req, res) => {
+      const id = req.query.id;
+      const query = { _id: ObjectId(id) };
+      const result = await orderCollection.deleteOne(query);
+      if (result.deletedCount === 1) {
+        console.log("Successfully deleted one document.");
+      } else {
+        console.log("No documents matched the query. Deleted 0 documents.");
+      }
+    })
   } finally {
     // await client.close();
   }
