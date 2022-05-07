@@ -44,6 +44,8 @@ async function run() {
       const result = await productCollection.insertOne(product);
       res.send({ success: "success fully post" });
     });
+
+/// --------product list for inventory---------
     app.get("/productslist", async (req, res) => {
       const cursor = productCollection.find({});
       const result = await cursor.toArray();
