@@ -12,20 +12,20 @@ app.use(cors());
 app.use(express.json());
 require("dotenv").config();
 
-// const verifyJwt = (req, res, next) => {
-//   const authHeader = req.headers.authorization;
-//   if (!authHeader) {
-//     return res.status(401).send({ message: 'unauthorize access' });
-//   }
-//   const token = authHeader.split(' ')[1];
-//   jwt.verify(token, process.env.ACCESS_SECRET_TOKEN, function (err, decoded) {
-//     if (err) {
-//       return res.status(403).send({message:'forbidden access'})
-//     }
-//       req.decoded = decoded
-//   });
-//   next();
-// }
+const verifyJwt = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    return res.status(401).send({ message: 'unauthorize access' });
+  }
+  const token = authHeader.split(' ')[1];
+  jwt.verify(token, process.env.ACCESS_SECRET_TOKEN, function (err, decoded) {
+    if (err) {
+      return res.status(403).send({message:'forbidden access'})
+    }
+      req.decoded = decoded
+  });
+  next();
+}
 
 // const verifyToken = (token) => {
 //   jwt.verify(token, process.env.ACCESS_SECRET_TOKEN, function (err, decoded) {
@@ -65,7 +65,7 @@ async function run() {
     //-----------login token-----------------
     app.post("/login", (req, res) => {
       const email = req.body;
-      const token = jwt.sign({email}, process.env.ACCESS_SECRET_TOKEN);
+      const token = jwt.sign({ email }, process.env.ACCESS_SECRET_TOKEN);
       res.send({ token });
     });
 
@@ -95,7 +95,7 @@ async function run() {
     });
 
     //-------update Product ----------
-    app.put("/productupdate/:id", async (req, res) => {
+    app.put("/update/:id", async (req, res) => {
       const id = req.params.id;
       const updateProduct = req.body;
       const filter = { _id: ObjectId(id) };
@@ -145,21 +145,12 @@ async function run() {
     // ----------- add order-----------
     app.post("/order", async (req, res) => {
       const order = req.body;
-      // const orderinfo = req.headers.authorization;
-      // const [email, tokenInfo] = orderinfo.split(" ");
-      // console.log(email ,tokenInfo)
-      // const decoded = jwt.verify(tokenInfo, process.env.ACCESS_SECRET_TOKEN);
-      // if (decoded.email.email === email) {
-        const result = await orderCollection.insertOne(order);
-        res.send({ success: "success fully order" });
-      // }
-      // else {
-      //    res.send({ success: "something wrong" });
-      // }
+      const result = await orderCollection.insertOne(order);
+      res.send({ success: "success fully order" });
     });
 
     // ------------ order list ---------
-    app.get("/orderlist", async (req, res) => {
+    app.get("/orderlist",verifyJwt, async (req, res) => {
       const decodedEmail = req.decoded;
       const email = req.query.email;
       const query = { email: email };
